@@ -1,0 +1,63 @@
+.rbc-row-resource{
+  height: 50px;
+  line-height: 50px;
+}
+
+.rbc-toolbar{
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.rbc-toolbar .rbc-toolbar-label{
+  text-align: left;
+}
+
+.rbc-allday-cell{
+  visibility: hidden;
+  height: 0 !important;
+}
+
+.rbc-date-cell{
+ padding-right: 0; 
+ height: 100%;
+}
+
+.rbc-row-content{
+  height: 100%;
+}
+
+
+.rbc-row-content > .rbc-row {
+  height: 100%;
+}
+.rbc-button-link{
+  width: 100%;
+  height: 100%;
+}
+
+.rbc-toolbar button{
+  border-radius: 10px;
+}
+
+.rbc-event-label{
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.rbc-timeslot-group{
+  min-height: 120px;
+}
+
+.rbc-event-content{
+  padding-top: 5px;
+}
+
+.eventcomponent > span{
+  margin-bottom: 10px;
+}
+
+/* .rbc-event{
+  background-color: #89c997;
+  border: 1px solid #89c997 !important;
+} */

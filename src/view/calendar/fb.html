@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>予約フォーム</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css">
+</head>
+<body>
+
+    <form class="w-75 mx-auto">
+        <p class="mt-3">行き先</p>
+        <div>
+            <select name="goal" id="goal" class="form-control w-100 mt-1">
+                <option value="大和倉庫">大和倉庫</option>
+                <option value="桜物流センター2">桜物流センター</option>
+                <option value="富士倉庫">富士倉庫</option>
+                <option value="銀河物流ハブ">銀河物流ハブ</option>
+                <option value="旭ロジスティクスセンター">旭ロジスティクスセンター</option>
+            </select>
+        </div>
+        <p class="mt-3">運送会社名</p>
+        <div>
+            <input class="form-control w-100 mt-1" name="name" placeholder="" required>
+        </div>
+        <p class="mt-3">車番</p>
+        <div>
+            <input class="form-control w-100 mt-1" name="number" required>
+        </div>
+        <p class="mt-3">到着日時</p>
+        <div>
+            <input type="datetime-local" id="datepicker1" value="" class="form-control w-100 mt-1" name="arrive" required>
+        </div>
+        <p class="mt-3">出発日時</p>
+        <div>
+            <input type="datetime-local" id="datepicker2" value="" class="form-control w-100 mt-1" name="leave" required>
+        </div>
+        <p class="mt-3">温度</p>
+        <div>
+            <select name="temperature" id="temperature" class="form-control w-100 mt-1">
+                <option value="常温">常温</option>
+                <option value="冷蔵">冷蔵</option>
+                <option value="冷凍">冷凍</option>
+            </select>
+        </div>
+        <input type="submit" class="mt-4 btn btn-primary" value="送信">
+    </form>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+    <script>
+
+        // Firebaseの設定
+        const firebaseConfig = {
+          apiKey: "AIzaSyAZEzzVgfK__oh6fp6tc8zkXlgeO9AzgVI",
+          authDomain: "ix14-c72ec.firebaseapp.com",
+          projectId: "ix14-c72ec",
+          storageBucket: "ix14-c72ec.appspot.com",
+          messagingSenderId: "624123436624",
+          appId: "1:624123436624:web:c60a7b4739704a699dfb55",
+          measurementId: "G-XSPCR8WDH8"
+        };
+
+        // Firebaseを初期化
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore(app);
+
+        
+
+        $(document).ready(function () {
+            const liffId = "2005700642-nJpNM1y1";
+            initializeLiff(liffId);
+        })
+
+        function initializeLiff(liffId) {
+            liff.init({
+                liffId: liffId
+            }).then(() => {
+                initializeApp();
+            }).catch((err) => {
+                console.log('LIFF Initialization failed ', err);
+            });
+        }
+
+        function sendText(text) {
+            liff.sendMessages([{
+                'type': 'text',
+                'text': text
+            }]).then(function () {
+                liff.closeWindow();
+            }).catch(function (error) {
+                window.alert('Failed to send message ' + error);
+            });
+        }
+
+        const params = (new URL(document.location)).searchParams;
+        const key = params.get('key');
+
+        $(function () {
+            $('form').submit(function () {
+                const goal   = $('select[name="goal"]').val();
+                const name   = $('input[name="name"]').val();
+                const number = $('input[name="number"]').val();
+                const arrive  = $('input[name="arrive"]').val();
+                const leave  = $('input[name="leave"]').val();
+                const temperature = $('select[name="temperature"]').val();
+                 // Firestoreにデータを追加
+                db.collection('users').add({
+                    goal: `${goal}`,
+                    company:  `${name}`,
+                    number: `${number}`,
+                    start: `${arrive}`,
+                    end: `${leave}`,
+                    temperature: `${temperature}`,
+                })
+                .then(() => {
+                    alert('データが送信されました');
+                })
+                .catch((error) => {
+                    console.error('Error adding document: ', error);
+                    alert('データの送信に失敗しました');
+                });
+
+
+                const msg = `${goal}\n${name}\n${number}\n${arrive}\n${leave}\n${temperature}`;
+                sendText(msg);
+                return false;
+            });
+        });
+
+        window.onload = function(){
+            var getToday = new Date();
+            var y = getToday.getFullYear();
+            var m = getToday.getMonth() + 1;
+            var d = getToday.getDate();
+            var hours = getToday.getHours();
+            var minutes = getToday.getMinutes();
+            var today = y + "-" + m.toString().padStart(2,'0') + "-" + d.toString().padStart(2,'0') + "T" + hours.toString().padStart(2,'0') + ":" + minutes.toString().padStart(2,'0') ;
+            document.getElementById("datepicker1").setAttribute("value",today);
+            document.getElementById("datepicker2").setAttribute("value",today);
+        }
+
+    </script>
+
+</body>
+</html>
